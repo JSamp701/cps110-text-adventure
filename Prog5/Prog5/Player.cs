@@ -38,6 +38,7 @@ namespace Prog5
         public List<Coord> currentPositions;
         public Dictionary<string, bool> switches;
         public string lastInput;
+        public string lastTarget;
         public bool done;
     }
 
@@ -71,7 +72,7 @@ namespace Prog5
             {
                 string line;
                 int lineno;
-                for(line = reader.ReadLine(), lineno = 0; line != null; line = reader.ReadLine(), ++lineno)
+                for (line = reader.ReadLine(), lineno = 0; line != null; line = reader.ReadLine(), ++lineno)
                 {
                     if (line == "")
                     {
@@ -83,7 +84,7 @@ namespace Prog5
                         line = line.Replace(' ', '+');
                         line = "println " + line.Substring(1);
                     }
-                    string[] linearray = line.Split(' ');
+                    string[] linearray = line.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
                     if(linearray.Length % 2 == 0)
                     {
                         //proceed as normal, the sentence is well formed
@@ -125,43 +126,43 @@ namespace Prog5
                 switch(currPhrase.command)
                 {
                     case ("room"):
-                        doRoom(currPhrase.info, script);
+                        doRoom(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("print"):
-                        doPrint(currPhrase.info, script);
+                        doPrint(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("println"):
-                        doPrintln(currPhrase.info, script);
+                        doPrintln(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("goto"):
-                        doGoto(currPhrase.info, script);
+                        doGoto(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("end"):
-                        doEnd(currPhrase.info, script);
+                        doEnd(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("prompt"):
-                        doPrompt(currPhrase.info, script);
+                        doPrompt(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("on"):
-                        doOn(currPhrase.info, script);
+                        doOn(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("set"):
-                        doSet(currPhrase.info, script);
+                        doSet(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("clear"):
-                        doClear(currPhrase.info, script);
+                        doClear(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("if"):
-                        doIf(currPhrase.info, script);
+                        doIf(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("unless"):
-                        doUnless(currPhrase.info, script);
+                        doUnless(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("visit"):
-                        doVisit(currPhrase.info, script);
+                        doVisit(modifyInfo(currPhrase.info, script), script);
                         break;
                     case ("return"):
-                        doReturn(currPhrase.info, script);
+                        doReturn(modifyInfo(currPhrase.info, script), script);
                         break;
                     default:
                         InvalidCommandException e = new InvalidCommandException();
@@ -180,6 +181,11 @@ namespace Prog5
         */
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        
+        static string modifyInfo(string info, Script script)
+        {
+            return info.Replace("$", script.lastTarget);
+        }
 
         static void doRoom(string info, Script script)
         {
@@ -205,6 +211,7 @@ namespace Prog5
                 Coord currentCoord = script.currentPositions[script.currentPositions.Count - 1];
                 currentCoord.phraseIndex = 0;
                 currentCoord.sentenceIndex = script.roomToSentenceNumber[info];
+                script.lastTarget = info;
             }
             else
             {
@@ -267,12 +274,30 @@ namespace Prog5
 
         static void doVisit(string info, Script script)
         {
-            throw new NotImplementedException();
+            if (script.roomToSentenceNumber.ContainsKey(info))
+            {
+                /*
+                Coord currentCoord = script.currentPositions[script.currentPositions.Count - 1];
+                currentCoord.phraseIndex = 0;
+                currentCoord.sentenceIndex = script.roomToSentenceNumber[info];
+                */
+                Coord newCoord = new Coord();
+                newCoord.phraseIndex = 0;
+                newCoord.sentenceIndex = script.roomToSentenceNumber[info];
+                script.currentPositions.Add(newCoord);
+            }
+            else
+            {
+                InvalidRoomException e = new InvalidRoomException();
+                e.room = info;
+                throw e;
+            }
         }
 
         static void doReturn(string info, Script script)
         {
-            throw new NotImplementedException();
+            script.currentPositions.RemoveAt(script.currentPositions.Count - 1);
+            advanceIndex(script, false);
         }
 
         static void advanceIndex(Script script, bool continueSentence)
