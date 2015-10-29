@@ -36,6 +36,7 @@ namespace Prog5
         public List<Sentence> sentences;
         public Dictionary<string, int> roomToSentenceNumber;
         public List<Coord> currentPositions;
+        public Dictionary<string, bool> switches;
         public string lastInput;
         public bool done;
     }
@@ -65,6 +66,7 @@ namespace Prog5
             script.currentPositions = new List<Coord>();
             script.done = false;
             script.lastInput = "";
+            script.switches = new Dictionary<string, bool>();
             using (StreamReader reader = new StreamReader(fname))
             {
                 string line;
@@ -231,22 +233,36 @@ namespace Prog5
 
         static void doSet(string info, Script script)
         {
-            throw new NotImplementedException();
+            script.switches[info] = true;
+            advanceIndex(script, true);
         }
 
         static void doClear(string info, Script script)
         {
-            throw new NotImplementedException();
+            script.switches[info] = false;
+            advanceIndex(script, true);
         }
 
         static void doIf(string info, Script script)
         {
-            throw new NotImplementedException();
+            if (script.switches.ContainsKey(info))
+                advanceIndex(script, script.switches[info]);
+            else
+            {
+                script.switches[info] = false;
+                advanceIndex(script, false);
+            }
         }
 
         static void doUnless(string info, Script script)
         {
-            throw new NotImplementedException();
+            if (script.switches.ContainsKey(info))
+                advanceIndex(script, !script.switches[info]);
+            else
+            {
+                script.switches[info] = false;
+                advanceIndex(script, true);
+            }
         }
 
         static void doVisit(string info, Script script)
