@@ -1,0 +1,17 @@
+room start
+println hello+world!
+goto skippy
+println you+won't+see+this!
+
+room hidden
+println you+found+me!
+goto finish
+
+room skippy
+print hey+there!++catch+me+if+you+can!
+goto hidden
+
+room finish
+println the+end!
+end game
+println or+is+it?

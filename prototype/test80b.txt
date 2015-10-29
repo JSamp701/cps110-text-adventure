@@ -1,0 +1,52 @@
+>You are sitting in CpS 110, minding your own business.
+>Suddenly, and without warning (as is usually the case with "suddenly"),
+>a harsh, stabbling light momentarily blinds you and you hear the distinct
+>sound of a kazoo being played very badly.  That is all.
+>
+>When your vision returns to normal, you are alone in your classroom.
+>There is no trace of your classmates or instructor.
+>
+>Scrawled across the chalkboard--in chalk!--is the following chilling message:
+>
+>       You must go to the library...
+>
+
+room room109
+>You are in Alumni 109.  There is a door leading NORTH to the hall outside.
+prompt Now+what?
+on north goto hallway
+>Wat?
+goto room109
+
+room hallway
+>You are in a deserted hallway in the Alumni Building.
+>To the SOUTH is the door to Al. 109.
+>To the WEST is a door leading outside.
+prompt Now+what?
+on south goto room109
+on west goto outside
+>I do not understand that...
+goto hallway
+
+room outside
+>You are outside.  It is raining.  You are wet.
+>The library is to the WEST.  The Alumni Building is to the EAST.
+>The seminary building is to the SOUTH, but I haven't implemented that room yet.
+prompt Now+what?
+on west goto library
+on east goto hallway
+on south println What+part+of+"not+implemented"+didn't+make+sense?
+>Huh?
+goto outside
+
+room library
+>You run into the library, dripping wet.
+>Imagine your surprise when you find all your classmates and your instructor
+>waiting for you there.
+> 
+>"Surprise!" they all shout, "and happy birthday!"
+>
+>It isn't your birthday.
+>
+>But you win anyway...
+end game

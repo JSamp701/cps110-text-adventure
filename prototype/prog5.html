@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>CpS 110 Program 5: Text Adventure Interpreter</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<div id="header">
+<h1 class="title">CpS 110 Program 5: Text Adventure Interpreter</h1>
+</div>
+<style type="text/css">
+    table, th, td {
+        border: 1px solid gray;
+    }
+    td.lineNumbers {
+        width: 2em;
+    }
+</style>
+<h2 id="overview">Overview</h2>
+<p>One of the first popular genres of computer game was the <em>text adventure</em> (originally just called &quot;adventure,&quot; since everything was in text in those days). Text adventures ceased to be commercially viable in the 1980s and 1990s, but there is still a strong hobbyist community dedicated to what is now often called &quot;interactive fiction.&quot;</p>
+<p>You can play some of the classics of this genre online for free today. (E.g., The original, unimaginatively-named <a href="http://www.web-adventures.org/cgi-bin/webfrotz?s=Adventure">Adventure</a>.)</p>
+<p>Many of the great classic text adventures of the past were implemented using special game interpreters: programs that would read a description of the game's world/scenarios from a file and then &quot;interpret&quot; those instructions step by step to make the game come to life. Game creators could script a new game by writing a new game description file without having to modify or recompile the interpreter program itself. (<a href="https://en.wikipedia.org/wiki/Z-machine">Some</a> of these interpreters became almost as famous as the games they ran!)</p>
+<p><strong>Your mission</strong> is to write a program that can interpret a very simple form of text adventure game &quot;script.&quot;</p>
+<h2 id="basic-requirements">Basic Requirements</h2>
+<p>Your program will take a single <strong>command-line argument</strong>: the name of a text file containing the game script to interpret. If your program is run without any command-line arguments, you should print a message explaining how to use your program and then exit, like this:</p>
+<pre><code>C:\Users\Sally&gt; prog5.exe
+CpS 110 Program 5: Text Adventure Interpreter, by Sally Scholar (sscho123)
+
+usage: prog5.exe GAME_SCRIPT_FILE
+
+C:\Users\Sally&gt;</code></pre>
+<p>Remember that command-line arguments are passed to your <code>Main</code> method in the form of a string array (usually called <code>args</code>), like this:</p>
+<div class="sourceCode"><table class="sourceCode cs numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="sourceCode"><pre><code class="sourceCode cs"><span class="kw">using</span> System;
+
+<span class="kw">class</span> Player {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="dt">void</span> <span class="fu">Main</span>(<span class="dt">string</span>[] args) {
+        <span class="kw">if</span> (args.<span class="fu">Length</span> == <span class="dv">0</span>) {
+            Console.<span class="fu">WriteLine</span>(<span class="st">&quot;Ooops, no arguments!&quot;</span>);
+        } <span class="kw">else</span> {
+            Console.<span class="fu">WriteLine</span>(<span class="st">&quot;You told me to interpret &#39;&quot;</span> + args[<span class="dv">0</span>] + <span class="st">&quot;&#39;...&quot;</span>);
+        }
+    }
+}</code></pre></td></tr></table></div>
+<p>If the user gives you one (or more) command-line arguments, use a <code>StreamReader</code> to open the requested file and read the game script line-by-line (see below for more details about the script format).</p>
+<p><strong>Make sure you handle all I/O errors gracefully.</strong> It's OK to terminate the program immediately, but you must print a meaningful error message before doing so. (Uncaught exceptions cause tracebacks: tracebacks are <em>not</em> acceptable error messages in this case.)</p>
+<h2 id="game-script-format">Game Script Format</h2>
+<h3 id="formal-definitions">Formal Definitions</h3>
+<p>A <strong>script</strong> is a sequence of <strong>lines</strong>. <strong>Lines</strong> may be empty (i.e., nothing but whitespace), in which case they are <em>ignored</em>. Each non-empty <strong>line</strong> forms a <strong>sentence</strong>, a sequence of parsed <strong>phrases</strong>. A <strong>phrase</strong> is a <em>pair</em> of adjacent <strong>words</strong>. And a <strong>word</strong> is any string of text containing no whitespace (i.e., no spaces, tabs, etc.).</p>
+<p>The first <strong>word</strong> of a <strong>phrase</strong> is the <em>command</em>: it tells your interpreter what to do next. The second <strong>word</strong> is extra <em>information</em> about how to do the <em>command</em>.</p>
+<p>Interpreters <em>must</em> replace any <code>'+'</code> characters found in <em>information</em> <strong>words</strong> with <code>' '</code> (space) characters before interpreting the containing <strong>phrase</strong>; the best time to do this is while initially reading/parsing the script.</p>
+<h3 id="a-simple-example">A Simple Example</h3>
+<p>This is the baseline test script. Your first goal should be to get your interpreter properly executing these sentences:</p>
+<div class="sourceCode"><table class="sourceCode numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="sourceCode"><pre><code class="sourceCode">room start
+println hello+world!
+goto skippy
+println you+won&#39;t+see+this!
+
+room hidden
+println you+found+me!
+goto finish
+
+room skippy
+print hey+there!++catch+me+if+you+can!
+goto hidden
+
+room finish
+println the+end!
+end game
+println or+is+it?</code></pre></td></tr></table></div>
+<p>Each non-empty <strong>line</strong> of text contains a <strong>sentence</strong>; in this example, each <strong>sentence</strong> consists of exactly one <strong>phrase</strong>. Notice several things:</p>
+<ul>
+<li>Some <em>commands</em> cause specific actions
+<ul>
+<li><code>println</code> prints a message followed by a newline</li>
+<li><code>print</code> prints a message <em>without</em> following it with a newline</li>
+<li><code>goto</code> skips to a new location in the script</li>
+<li><code>end</code> terminates the script altogether</li>
+</ul></li>
+<li>One <em>command</em> is simply a placeholder: <code>room</code> serves as a marker, a destination for <code>goto</code> commands</li>
+<li>If we want spaces in an <em>information</em> <strong>word</strong> (e.g., when <code>print</code>ing a message), we need to represent those spaces with <code>+</code> characters (like URLs!); this keeps our format simple (we don't have to worry about whitespace inside <strong>words</strong>)</li>
+</ul>
+<p>When interpreted, the above script produces the output:</p>
+<pre><code>CpS 110 Program 5: Text Adventure Interpreter, by Eddy Egghead (eeggh042)
+
+hello world!
+hey there!  catch me if you can!
+you found me!
+the end!</code></pre>
+<p>Take a moment to trace through the script yourself and verify that the above output is what you would expect. Notice what messages <em>don't</em> get printed.</p>
+<h3 id="a-more-complex-example">A More Complex Example</h3>
+<p>Now let's look at an example that is a little more advanced:</p>
+<div class="sourceCode"><table class="sourceCode numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="sourceCode"><pre><code class="sourceCode">&gt;Test 2
+&gt;-------------------
+&gt;Demonstrates several features, including
+&gt;&quot;literate println&quot; form.
+goto start
+println Do+not+show+this...
+
+room start
+prompt Do+you+like+programming?
+on yes println Me+too! goto finish
+on no println Too+bad... goto finish
+println Please+answer+&quot;yes&quot;+or+&quot;no&quot;...
+goto start
+
+room finish
+end game</code></pre></td></tr></table></div>
+<p>Notice some new elements:</p>
+<ul>
+<li>Since printing text is the most common task in a text adventure game, and since typing text with <code>'+'</code> in place of <code>' '</code> everywhere gets old really, really fast, we will support a special shortcut form of the <code>println</code> command:
+<ul>
+<li>If a <strong>line</strong> begins with the character <code>'&gt;'</code>...</li>
+<li>...that <strong>line</strong> forms a <strong>sentence</strong> with a single <strong>phrase</strong>...</li>
+<li>...with <code>println</code> as the <em>command</em> <strong>word</strong> and the contents of the <strong>line</strong> (not including the <code>'&gt;'</code> character) as the <em>information</em> <strong>word</strong></li>
+</ul></li>
+<li>We are now getting input from the player with <code>prompt</code>
+<ul>
+<li>This prints a message (exactly like <code>print</code>)</li>
+<li>And then reads a line of text from the user; this line is remembered as the &quot;last input&quot;</li>
+</ul></li>
+<li>Some <strong>sentences</strong> consist of more than one <strong>phrase</strong>, and they are executed left-to-right:
+<ul>
+<li>Line 7:
+<ul>
+<li>check if the &quot;last input&quot; contains the text &quot;yes&quot;; if <strong>NOT</strong>, skip to the start of Line 8</li>
+<li><code>print</code> an enthusiastic message</li>
+<li><code>goto</code> the end</li>
+</ul></li>
+<li>Line 8:
+<ul>
+<li>check if the &quot;last input&quot; contains the text &quot;no&quot;; if <strong>NOT</strong>, skip to the start of Line 9</li>
+<li><code>print</code> a sympathetic message</li>
+<li><code>goto</code> the end</li>
+</ul></li>
+</ul></li>
+<li>Unless the user enters some string containing either &quot;yes&quot; or &quot;no&quot;, our script will run forever! (see the <code>goto</code> command on Line 10)</li>
+</ul>
+<h3 id="game-script-command-reference">Game Script Command Reference</h3>
+<table>
+<colgroup>
+<col width="25%" />
+<col width="35%" />
+<col width="30%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Command Word</th>
+<th align="left">Information Word</th>
+<th align="left">Notes</th>
+<th align="left">Level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>room</code></td>
+<td align="left">Label naming the &quot;room&quot;</td>
+<td align="left">Doesn't actively do anything, just serves as a marker for later <code>goto</code> and <code>visit</code> commands</td>
+<td align="left">70+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>println</code></td>
+<td align="left">A string to print; spaces can be represented as <code>'+'</code> characters</td>
+<td align="left">Each message should be followed by a newline (<code>'\n'</code>); alternate form is a line starting with a <code>'&gt;'</code> character (the rest of the line is the message to print)</td>
+<td align="left">70+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>print</code></td>
+<td align="left">The same as <code>println</code></td>
+<td align="left">Messages are <em>not</em> followed by newline (<code>'\n'</code>)</td>
+<td align="left">70+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>goto</code></td>
+<td align="left">Label naming the target &quot;room&quot; in the script</td>
+<td align="left"></td>
+<td align="left">70+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>end</code></td>
+<td align="left">Technically ignored; scripts typically use &quot;game&quot; as a placeholder</td>
+<td align="left">Script execution stops if we encounter an <code>end</code> command</td>
+<td align="left">70+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>prompt</code></td>
+<td align="left">A string to print before reading input; follows the same rules as <code>print</code> does</td>
+<td align="left">Unlike <code>print</code>, should not print a newline after the prompt message; the user input must be stored; it is referred to as the &quot;last input&quot; and is consulted by subsequent <code>on</code> commands</td>
+<td align="left">80+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>on</code></td>
+<td align="left">A string to search for inside the &quot;last input&quot; line of text</td>
+<td align="left">If it is found, execution continues along the current <strong>sentence</strong>; if not, skip to the next <strong>sentence</strong> in the script</td>
+<td align="left">80+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>set</code></td>
+<td align="left">The name of a switch to be set to TRUE/ON</td>
+<td align="left"></td>
+<td align="left">90+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>clear</code></td>
+<td align="left">The name of a switch to be set to FALSE/OFF</td>
+<td align="left"></td>
+<td align="left">90+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>if</code></td>
+<td align="left">The name of a switch to test for TRUTH</td>
+<td align="left">If the switch is TRUE/ON, continue executing this <strong>sentence</strong>; otherwise skip to the next one</td>
+<td align="left">90+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>unless</code></td>
+<td align="left">The name of a switch to test for FALSEHOOD</td>
+<td align="left">Basically <code>if not</code></td>
+<td align="left">90+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>visit</code></td>
+<td align="left">Room label to &quot;visit&quot;</td>
+<td align="left">Must remember the index of the next-to-execute <strong>sentence</strong> in the script so that <code>return</code> can work!</td>
+<td align="left">100+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>return</code></td>
+<td align="left">Technically ignored, but scripts typically use &quot;home&quot; as a placeholder</td>
+<td align="left">Jumps back to the original next <strong>sentence</strong> stored by the previous <code>visit</code> commane</td>
+<td align="left">100+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="level-requirements">70 Level Requirements</h2>
+<p>At an absolute bare minimum, your interpreter must be able to successfully execute the <code>test70.txt</code> script in the <code>prog5</code> folder on the class network share. Specifically:</p>
+<ul>
+<li>You must implement <code>room</code>, <code>print</code>, <code>goto</code>, and <code>end</code></li>
+<li><strong>For this level only</strong>, you <em>may</em> assume exactly one <strong>phrase</strong> per <strong>sentence</strong> <em>(but I do not recommend this approach, as it will make it much harder to advance to the 80-level and beyond)</em></li>
+<li><strong>For this level only</strong>, you may choose not to support the &quot;literate print&quot; form of input <em>(but implementing it should be very easy compared to parsing normal <strong>phrase</strong>s, actually)</em></li>
+</ul>
+<h3 id="tips">Tips</h3>
+<ul>
+<li>Parse the script file completely before trying to interpret/execute the commands</li>
+<li>You <em>may</em> assume that all official test scripts are well-formed</li>
+<li><code>String.Split()</code> is your friend</li>
+<li>Consider making a simple class defining <strong>phrase</strong> objects (i.e., objects containing a <em>command</em> string and an <em>information</em> string)</li>
+<li>Consider making a simple class defining <strong>sentence</strong> objects (i.e., objects containing a <code>List</code> of <strong>phrase</strong> objects)</li>
+<li>Consider making a simple class defining <strong>script</strong> objects (i.e., objects containing a <code>List</code> of <strong>sentence</strong> objects)</li>
+<li>Keep &quot;simple&quot; classes <em>simple</em>: if the instances of the class exist only to bundle pieces of data together, you probably don't need to make its members private and/or provide many (or any) methods</li>
+<li>Keep track of where you are in the <strong>script</strong> with <em>index</em> (i.e., integer) variables:
+<ul>
+<li>One to remember which <strong>sentence</strong> in the <strong>script</strong> you are currently interpreting</li>
+<li>One to remember which <strong>phrase</strong> in that <strong>sentence</strong> you are currently interpreting</li>
+</ul></li>
+<li>As you interpret/execute each <strong>phrase</strong>, you will manipulate your index variables to advance to the next phrase and/or sentence (or, in the case of <code>goto</code> commands, to jump to a distant phrase/sentence)</li>
+<li>For <code>goto</code> (and the later <code>visit</code>) commands, you may assume that the target <code>room</code> <strong>phrase</strong> will always appear at the beginning of some <strong>sentence</strong> (i.e., it will be the <em>first</em> <strong>phrase</strong> of some <strong>sentence</strong>)</li>
+</ul>
+<h2 id="level-requirements-1">80 Level Requirements</h2>
+<p>A 70-level interpreter is frankly boring. It can print messages. It can print messages in an infinite loop. And that's about it. We aren't able to craft an actual <em>game</em> yet because we can't give the user control over anything. We can't even get any input from the user, let alone act on it!</p>
+<p>We're going to start fixing that at the 80-level. Now, in addition to the baseline 70-level requirements, your interpreter must be able to execute the <code>test80a.txt</code> and <code>test80b.txt</code> scripts. To do this it must:</p>
+<ul>
+<li>Implement the <code>prompt</code> and <code>on</code> commands</li>
+<li>Implement &quot;literate print&quot; form (e.g., <code>&gt;A line like this</code> becomes <code>print A+line+like+this</code>)</li>
+<li>Handle multi-phrase sentences
+<ul>
+<li>Interpret the phrases left-to-right, exactly as if they had occurred on lines by themselves</li>
+<li><em>Except</em> in the case of &quot;conditional&quot; commands (like <code>on</code>)
+<ul>
+<li>If the condition was <em>true</em> (i.e., the <em>information</em> word was contained in the &quot;last input&quot;), continue executing this <strong>sentence</strong> as before</li>
+<li>Otherwise (i.e., the <em>information</em> word was <em>not</em> found in the &quot;last input&quot;), skip the rest of this <strong>sentence</strong> and continue at the start of the <em>next</em> <strong>sentence</strong></li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="tips-1">Tips</h3>
+<ul>
+<li>If you followed all the 70-level tips, you're almost done with the 80-version!</li>
+<li>In addition to the &quot;current location&quot; index variables, you now need a &quot;last input&quot; [string] variable to remember the last line of input from the player</li>
+</ul>
+<h2 id="level-requirements-2">90 Level Requirements</h2>
+<p>An 80-level interpreter is capable of interaction with the user, but it quickly becomes tedious to create interesting adventure stories with only <code>prompt</code>/<code>on</code>/<code>goto</code> to manipulate the flow of events. For example, how would you implement objects that the player can pick up and use? It's technically <em>possible</em> with just <code>prompt</code>/<code>on</code>/<code>goto</code>, but it quickly gets <em>ugly</em>.</p>
+<p>At the 90-level, we will add support for named &quot;flags&quot; or &quot;switches&quot; that can be TRUE/ON or FALSE/OFF. They're basically boolean variables, and we can use them in concert with some new conditional commands to create branching scripts much more easily. Your interpreter must now, in addition to all the 80-level requirements, be able to interpret the <code>test90a.txt</code> and <code>test90b.txt</code> scripts. To do this it must:</p>
+<ul>
+<li>Implement the <code>set</code> and <code>clear</code> commands to turn switches on/off</li>
+<li>Implement the conditional <code>if</code> and <code>unless</code> commands to control what happens based on the state of a switch
+<ul>
+<li><code>if</code> continues executing the current <strong>sentence</strong> only if the named switch was TRUE/ON</li>
+<li><code>unless</code> continues executing the current <strong>sentence</strong> only if the named switch was FALSE/OFF</li>
+</ul></li>
+<li>Treat uninitialized switches as FALSE/OFF (i.e., if an <code>if</code> or <code>unless</code> command names a switch that has not yet been <code>set</code> or <code>clear</code>ed, assume the switch is FALSE/OFF)</li>
+</ul>
+<h3 id="tips-2">Tips</h3>
+<ul>
+<li><code>Dictionary</code> is your friend!</li>
+<li><code>if</code> and <code>unless</code> are very similar to <code>on</code> (and, of course, almost identical to each other)</li>
+</ul>
+<h2 id="level-requirements-3">100 Level Requirements</h2>
+<p>With prompting, text matching, boolean switches, and conditional branching, we can now create quite sophisticated adventure games/stories. But we tend to end up with lots of <strong>sentence</strong> duplication. It would be nice if we could &quot;reuse&quot; chunks of script from multiple places. Almost like methods or something...</p>
+<p>At the 100-level, in addition to all 90-level requirements, your interpreter must be able to intepret the <code>test100a.txt</code> and <code>test100b.txt</code> scripts. This means it must:</p>
+<ul>
+<li>Keep track of the last <code>room</code> entered by a <code>goto</code> command (referred to as the &quot;last target&quot;)</li>
+<li>Replace any <code>'$'</code> characters a <strong>phrase</strong>'s <em>information</em> word with the &quot;last target&quot; name before interpreting that <strong>phrase</strong>; e.g.:
+<ul>
+<li>If &quot;last target&quot; is <code>mountain-path</code>, then the <strong>phrase</strong> <code>if $-has-key</code> becomes <code>if mountain-path-has-key</code></li>
+<li>If &quot;last target&quot; is <code>small-house</code>, then the <strong>phrase</strong> <code>set visited-$</code> becomes <code>set visited-small-house</code></li>
+</ul></li>
+<li>Implement the <code>visit</code> and <code>return</code> commands
+<ul>
+<li><code>visit</code> is almost like <code>goto</code>, except that it <em>doesn't</em> update the &quot;last target&quot; and it <em>does</em> remember a &quot;return sentence&quot; index</li>
+<li><code>return</code> is like a backwards <code>goto</code>; it not only <em>doesn't</em> update &quot;last target&quot;, it resumes execution at the next sentence after the most-recently-executed <code>visit</code> command</li>
+<li>For simplicity/sanity, you may assume that a <code>visit</code> command is always the <em>last</em> <strong>phrase</strong> in its <strong>sentence</strong> (i.e., the corresponding <code>return</code> doesn't have to worry about which <strong>phrase</strong> to come back to, just which <strong>sentence</strong> to come back to)</li>
+<li>For <em>full</em> credit, your interpreter must support arbitrary numbers of nested <code>visit</code>s with proper <code>return</code> behavior</li>
+</ul></li>
+</ul>
+<h2 id="extra-credit">Extra Credit</h2>
+<p>For minor extra credit, feel free to add extra features to your interpreter to increase its power and awesomeness. The only rules are:</p>
+<ul>
+<li>It must still run all the official tests (for your target level)</li>
+<li>You must document what exactly you did (i.e., why you deserve extra credit)</li>
+<li>You must include an example script that demonstrates your awesome new feature (i.e., prove you deserve extra credit)</li>
+</ul>
+<p>Ideas to get you started:</p>
+<ul>
+<li>Add a <code>wait</code> command to pause scripts for a configurable number of seconds (e.g., <code>wait 2</code> pauses for 2 seconds)</li>
+<li>Add a <code>chance</code> conditional command to allow for configurable &quot;random&quot; behavior in games/puzzles (e.g., <code>chance 50</code> has a 50% chance of continuing to the next <strong>phrase</strong> and a 50% chance of skipping to the next <strong>sentence</strong>)</li>
+<li>Modify your interpreter to print all output in &quot;teletype&quot; fashion, with a slight pause between each successive character</li>
+</ul>
+<p>Separately, for <em>up to</em> 10% extra credit (regardless of what level program you completed!), write an adventure game script and submit it alongside your code.</p>
+<p>For maximum credit, write a script that</p>
+<ul>
+<li>runs on <em>your</em> interpreter (i.e., do not use features you did not implement) <strong>AND</strong></li>
+<li>runs on <em>any</em> properly written interpreter (i.e., do not use non-standard features that you may have added to your interpreter) <strong>AND</strong></li>
+<li>implements a challenging puzzle game (i.e., something better than find-the-key-to-unlock-the-gate) <strong>OR</strong></li>
+<li>tells an interesting, non-linear story (i.e., a choose-your-own-adventure story) <strong>OR</strong></li>
+<li>does something unexpectedly clever (e.g., challenges the player to a game of tic-tac-toe)</li>
+</ul>
+<h2 id="submission">Submission</h2>
+<p>All your C# code must be in a file named <code>Player.cs</code> that compiles without error to produce a console program.</p>
+<p>If you did the extra credit, your game script should be in a file named <code>mydemo.txt</code>.</p>
+<p>Submit <code>Player.cs</code> (and <code>mydemo.txt</code>, if applicable) to <a href="http://csunix.cs.bju.edu/submit/upload/me/cps110/prog5" class="uri">http://csunix.cs.bju.edu/submit/upload/me/cps110/prog5</a>.</p>
+</body>
+</html>

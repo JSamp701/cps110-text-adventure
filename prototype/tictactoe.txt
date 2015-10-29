@@ -1,0 +1,163 @@
+room reset
+clear a1-x clear b1-x clear c1-x
+clear a2-x clear b2-x clear c2-x
+clear a3-x clear b3-x clear c3-x
+clear a1-o clear b1-o clear c1-o
+clear a2-o clear b2-o clear c2-o
+clear a3-o clear b3-o clear c3-o
+goto start
+
+room show-row
+print +$+
+if a$-x print |+X+
+if a$-o print |+O+
+unless a$-x unless a$-o print |+++
+if b$-x print |+X+
+if b$-o print |+O+
+unless b$-x unless b$-o print |+++
+if c$-x print |+X+
+if c$-o print |+O+
+unless c$-x unless c$-o print |+++
+println |
+return home
+
+room show-board
+goto 1
+room 1
+>     a   b   c
+>   *---*---*---*
+visit show-row
+goto 2
+room 2
+>   *---*---*---*
+visit show-row
+goto 3
+room 3
+>   *---*---*---*
+visit show-row
+>   *---*---*---*
+>
+return home
+
+room start
+visit show-board
+prompt Move+(X)?
+on quit end game
+on reset goto reset
+on a on 1 unless a1-x unless a1-o set a1-x goto logic
+on a on 2 unless a2-x unless a2-o set a2-x goto logic
+on a on 3 unless a3-x unless a3-o set a3-x goto logic
+on b on 1 unless b1-x unless b1-o set b1-x goto logic
+on b on 2 unless b2-x unless b2-o set b2-x goto logic
+on b on 3 unless b3-x unless b3-o set b3-x goto logic
+on c on 1 unless c1-x unless c1-o set c1-x goto logic
+on c on 2 unless c2-x unless c2-o set c2-x goto logic
+on c on 3 unless c3-x unless c3-o set c3-x goto logic
+>Illegal move!
+>
+goto start
+
+room logic
+if a1-x if b1-x if c1-x goto you-win
+if a2-x if b2-x if c2-x goto you-win
+if a3-x if b3-x if c3-x goto you-win
+if a1-x if a2-x if a3-x goto you-win
+if b1-x if b2-x if b3-x goto you-win
+if c1-x if c2-x if c3-x goto you-win
+if a1-x if b2-x if c3-x goto you-win
+if a3-x if b2-x if c1-x goto you-win
+
+> Making my move...
+>
+>  (Checking for winning moves...)
+if a1-o if a2-o unless a3-x set a3-o goto logic2
+if a1-o if a3-o unless a2-x set a2-o goto logic2
+if a2-o if a3-o unless a1-x set a1-o goto logic2
+if b1-o if b2-o unless b3-x set b3-o goto logic2
+if b1-o if b3-o unless b2-x set b2-o goto logic2
+if b2-o if b3-o unless b1-x set b1-o goto logic2
+if c1-o if c2-o unless c3-x set c3-o goto logic2
+if c1-o if c3-o unless c2-x set c2-o goto logic2
+if c2-o if c3-o unless c1-x set c1-o goto logic2
+if a1-o if b1-o unless c1-x set c1-o goto logic2
+if a1-o if c1-o unless b1-x set b1-o goto logic2
+if b1-o if c1-o unless a1-x set a1-o goto logic2
+if a2-o if b2-o unless c2-x set c2-o goto logic2
+if a2-o if c2-o unless b2-x set b2-o goto logic2
+if b2-o if c2-o unless a2-x set a2-o goto logic2
+if a3-o if b3-o unless c3-x set c3-o goto logic2
+if a3-o if c3-o unless b3-x set b3-o goto logic2
+if b3-o if c3-o unless a3-x set a3-o goto logic2
+if a1-o if b2-o unless c3-x set c3-o goto logic2
+if a1-o if c3-o unless b2-x set b2-o goto logic2
+if b2-o if c3-o unless a1-x set a1-o goto logic2
+if a3-o if b2-o unless c1-x set c1-o goto logic2
+if a3-o if c1-o unless b2-x set b2-o goto logic2
+if b2-o if c1-o unless a3-x set a3-o goto logic2
+
+>  (Checking for blocking moves...)
+if a1-x if a2-x unless a3-o set a3-o goto logic2
+if a1-x if a3-x unless a2-o set a2-o goto logic2
+if a2-x if a3-x unless a1-o set a1-o goto logic2
+if b1-x if b2-x unless b3-o set b3-o goto logic2
+if b1-x if b3-x unless b2-o set b2-o goto logic2
+if b2-x if b3-x unless b1-o set b1-o goto logic2
+if c1-x if c2-x unless c3-o set c3-o goto logic2
+if c1-x if c3-x unless c2-o set c2-o goto logic2
+if c2-x if c3-x unless c1-o set c1-o goto logic2
+if a1-x if b1-x unless c1-o set c1-o goto logic2
+if a1-x if c1-x unless b1-o set b1-o goto logic2
+if b1-x if c1-x unless a1-o set a1-o goto logic2
+if a2-x if b2-x unless c2-o set c2-o goto logic2
+if a2-x if c2-x unless b2-o set b2-o goto logic2
+if b2-x if c2-x unless a2-o set a2-o goto logic2
+if a3-x if b3-x unless c3-o set c3-o goto logic2
+if a3-x if c3-x unless b3-o set b3-o goto logic2
+if b3-x if c3-x unless a3-o set a3-o goto logic2
+if a1-x if b2-x unless c3-o set c3-o goto logic2
+if a1-x if c3-x unless b2-o set b2-o goto logic2
+if b2-x if c3-x unless a1-o set a1-o goto logic2
+if a3-x if b2-x unless c1-o set c1-o goto logic2
+if a3-x if c1-x unless b2-o set b2-o goto logic2
+if b2-x if c1-x unless a3-o set a3-o goto logic2
+
+>  (No winning/blocking move found...)
+unless b2-x unless b2-o set b2-o goto logic2
+unless a1-x unless a1-o set a1-o goto logic2
+unless c1-x unless c1-o set c1-o goto logic2
+unless a3-x unless a3-o set a3-o goto logic2
+unless c3-x unless c3-o set c3-o goto logic2
+unless b1-x unless b1-o set b1-o goto logic2
+unless a2-x unless a2-o set a2-o goto logic2
+unless c2-x unless c2-o set c2-o goto logic2
+unless b3-x unless b3-o set b3-o goto logic2
+goto stalemate
+
+room logic2
+>
+if a1-o if b1-o if c1-o goto i-win
+if a2-o if b2-o if c2-o goto i-win
+if a3-o if b3-o if c3-o goto i-win
+if a1-o if a2-o if a3-o goto i-win
+if b1-o if b2-o if b3-o goto i-win
+if c1-o if c2-o if c3-o goto i-win
+if a1-o if b2-o if c3-o goto i-win
+if a3-o if b2-o if c1-o goto i-win
+goto start
+
+room you-win
+>
+visit show-board
+>You win!!!
+end game
+
+room i-win
+visit show-board
+>I win!!!
+end game
+
+room stalemate
+>
+visit show-board
+>Nobody wins!!!
+end game

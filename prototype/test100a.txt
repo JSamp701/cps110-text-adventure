@@ -1,0 +1,28 @@
+println Visit/Return+Test
+goto main
+
+room do
+set visited-do
+println do:+last_room=$,+visiting+"re"
+visit re
+println do:+done
+return home
+
+room re
+set visited-re
+println re:+last_room=$,+visiting+"mi"
+visit mi
+println re:+done
+return home
+
+room mi
+set visited-mi
+println mi:+last_room=$,+one+and+done
+return home
+
+room main
+println $:+Visiting+"do"...
+visit do
+if visited-do if visited-re if visited-mi println SUCCESS end game
+println OOPSIES...
+end game

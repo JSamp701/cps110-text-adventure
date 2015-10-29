@@ -1,0 +1,14 @@
+> Test 2
+>------------------------
+goto start
+print Do+not+show+this...
+
+room start
+prompt Do+you+like+programming?
+on yes println Me+too! goto finish
+on no println Too+bad... goto finish
+println Please+answer+"yes"+or+"no"...
+goto start
+
+room finish
+end game

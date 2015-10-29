@@ -1,0 +1,73 @@
+clear player-has-umbrella
+clear player-wet
+set lights-109
+set umbrella-in-109
+
+>You are sitting in CpS 110, minding your own business.
+>Suddenly, and without warning (as is usually the case with "suddenly"),
+>a harsh, stabbling light momentarily blinds you and you hear the distinct
+>sound of a kazoo being played very badly.  That is all.
+> 
+>When your vision returns to normal, you are alone in your classroom.
+>There is no trace of your classmates or instructor.
+> 
+>Scrawled across the chalkboard--in chalk!--is the following chilling message:
+> 
+>       You must go to the library...
+> 
+
+room room109
+>You are in Alumni 109.  There is a door leading NORTH to the hall outside.
+>A light switch is next to the door.
+if lights-109 println Overhead+fluorescent+lamps+fill+the+the+room+with+a+sickly+bluish+light.
+unless lights-109 println The+room+is+semi-dark.++Kind+of+spooky.
+if player-wet println You+are+dripping+wet.++Water+pools+under+your+feet.
+if umbrella-in-109 println A+red+umbrella+lies+on+the+floor.
+if player-has-umbrella println You+grip+a+red+umbrella+loosely.
+prompt Now+what?
+on umbrella if player-has-umbrella println Yes,+yes,+you+have+an+umbrella. goto room109
+on umbrella if umbrella-in-109 println You+pick+up+the+umbrella. set player-has-umbrella clear umbrella-in-109 goto room109
+on north goto hallway
+on light if lights-109 println You+flip+the+light+switch+off. clear lights-109 goto room109
+on light unless lights-109 println You+flip+the+light+switch+on. set lights-109 goto room109
+>Wat?
+goto room109
+
+room hallway
+>You are in a deserted hallway in the Alumni Building.
+>To the SOUTH is the door to Al. 109.
+>To the WEST is a door leading outside.
+if player-wet println You+are+dripping+wet.++Water+pools+under+your+feet.
+if player-has-umbrella println You+grip+a+red+umbrella+loosely.
+prompt Now+what?
+on south goto room109
+on west goto outside
+>I do not understand that...
+goto hallway
+
+room outside
+>You are outside.  It is raining.
+if player-has-umbrella println You+quickly+deploy+your+red+umbrella.
+unless player-has-umbrella println You+are+wet. set player-wet
+>The library is to the WEST.  The Alumni Building is to the EAST.
+>The seminary building is to the SOUTH, but I haven't implemented that room yet.
+if player-has-umbrella println You+grip+a+red+umbrella+tightly+as+it+shields+you+from+the+rain.
+prompt Now+what?
+on west goto library
+on east goto hallway
+on south println What+part+of+"not+implemented"+didn't+make+sense?
+>Huh?
+goto outside
+
+room library
+if player-wet println You+run+into+the+library,+dripping+wet.
+unless player-wet println You+stroll+into+the+library,+dry+as+a+desert.
+>Imagine your surprise when you find all your classmates and your instructor
+>waiting for you there.
+> 
+>"Surprise!" they all shout, "and happy birthday!"
+> 
+>It isn't your birthday.
+> 
+>But you win anyway...
+end game

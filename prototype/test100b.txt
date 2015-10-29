@@ -1,0 +1,62 @@
+set mountain-has-key
+goto start 
+
+room do-prompt
+if $-has-key unless mountain-has-key println A+gold+key+glitters.
+if me-has-key println You+clutch+a+golden+key.
+println +
+prompt Now+what?
+clear im
+on quit end game
+on xyzzy goto cheater
+on drop on key if me-has-key set im clear me-has-key set $-has-key println You+drop+the+key.
+on take on key if me-has-key set im println Um,+you+already+have+it?
+on take on key if $-has-key set im clear $-has-key set me-has-key println You+take+the+key.
+return home
+
+room start
+>You are standing in the starting position of the game.
+>To the south, a massive iron gate looms over you.
+if start-gate-open println The+gate+is+open.
+unless start-gate-open println The+gate+is+locked+shut.
+println A+path+winds+off+to+the+north;+high+bushes+block+your+view+of+anything+else.
+visit do-prompt
+on unlock if me-has-key set im set start-gate-open println The+lock+is+sticky,+but+it+finally+creaks+open...
+on unlock unless me-has-key set im println What+with?!
+on north goto mountain
+on south if start-gate-open goto finish
+on south set im unless start-gate-open println But+the+gate+is+locked+and+refuses+to+open!
+unless im println I+have+no+idea+what+you're+talking+about...
+goto $
+
+room mountain
+> 
+>You are on a tall mountain.  Wind howls and shrieks as it tears through the cavernous gorge below.
+>To the south is the path you took to get here.  I don't recommend any other exits...
+if mountain-has-key println A+golden+key+glitters+in+the+sun+while+balanced+precariously+on+a+precipice.
+visit do-prompt
+on south goto start
+on north goto mountain-death
+on east goto mountain-death
+on west goto mountain-death
+on up goto mountain-death
+on down goto mountain-death
+unless im println Say+what?
+goto $
+
+room finish
+>You got through the gate, oh mighty hero!
+>You win! (Unfortunately, this is just a game, so that's not saying much...)
+end game
+
+room mountain-death
+>You tentatively start to make a move when suddenly the world pitches upside down--
+>You tumble to your tragic and untimely demise.
+>You lose.  (Fortunately, this is just a game and you can try again...)
+end game
+
+room cheater
+> 
+>So somebody told you the magic word, eh?
+> 
+goto finish

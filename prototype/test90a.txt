@@ -1,0 +1,18 @@
+clear b0
+clear b1
+
+room top
+unless b0 unless b1 println 0 set b0 goto top
+if b0 unless b1 println 1 clear b0 set b1 goto top
+unless b0 if b1 println 2 set b0 goto top
+if b0 if b1 println 3 goto the-end
+goto uh-oh
+
+room the-end
+println I+can+count!
+println That+means+your+switch+commands+work!!
+end game
+
+room uh-oh
+println The+script+has+a+bug...
+end game
