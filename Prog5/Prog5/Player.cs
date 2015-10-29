@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Prog5
 {
@@ -45,6 +46,7 @@ namespace Prog5
     class Player
     {
         const string AUTHOR_INFO = "CpS 110 Program 5: Text Adventure Interpreter, by Joel Sampson (jsamp701)";
+        const int SLEEP_MILLISECONDS = 10;
         static void Main(string[] args)
         {
             Console.WriteLine(AUTHOR_INFO + "\n");
@@ -82,7 +84,7 @@ namespace Prog5
                     if (line[0] == '>')
                     {
                         line = line.Replace(' ', '+');
-                        line = "println " + line.Substring(1);
+                        line = "println " + line.Substring(1) + "+++++";
                     }
                     string[] linearray = line.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
                     if(linearray.Length % 2 == 0)
@@ -164,6 +166,12 @@ namespace Prog5
                     case ("return"):
                         doReturn(modifyInfo(currPhrase.info, script), script);
                         break;
+                    case ("wait"):
+                        doWait(modifyInfo(currPhrase.info, script), script);
+                        break;
+                    case ("chance"):
+                        doChance(modifyInfo(currPhrase.info, script), script);
+                        break;
                     default:
                         InvalidCommandException e = new InvalidCommandException();
                         e.command = currPhrase.command;
@@ -187,6 +195,15 @@ namespace Prog5
             return info.Replace("$", script.lastTarget);
         }
 
+        static void printTeletypey(string info)
+        {
+            foreach(char c in info)
+            {
+                Console.Write(c);
+                Thread.Sleep(SLEEP_MILLISECONDS);
+            }
+        }
+
         static void doRoom(string info, Script script)
         {
             advanceIndex(script, true);
@@ -194,13 +211,15 @@ namespace Prog5
 
         static void doPrint(string info, Script script)
         {
-            Console.Write(info);
+            //Console.Write(info);
+            printTeletypey(info);
             advanceIndex(script, true);
         }
 
         static void doPrintln(string info, Script script)
         {
-            Console.WriteLine(info);
+            //Console.WriteLine(info);
+            printTeletypey(info + "\n");
             advanceIndex(script, true);
         }
 
@@ -298,6 +317,21 @@ namespace Prog5
         {
             script.currentPositions.RemoveAt(script.currentPositions.Count - 1);
             advanceIndex(script, false);
+        }
+
+        static void doWait(string info, Script script)
+        {
+            int seconds = Convert.ToInt32(info);
+            Thread.Sleep(seconds * 1000);
+            advanceIndex(script, true);
+        }
+
+        static void doChance(string info, Script script)
+        {
+            int percent = Convert.ToInt32(info);
+            Random rng = new Random();
+            int chance = rng.Next(101);
+            advanceIndex(script, chance >= percent);
         }
 
         static void advanceIndex(Script script, bool continueSentence)
