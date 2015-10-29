@@ -219,14 +219,14 @@ namespace Prog5
 
         static void doPrompt(string info, Script script)
         {
-            throw new NotImplementedException();
-            Console.Write(info);
+            Console.Write(info + " ");
             script.lastInput = Console.ReadLine();
+            advanceIndex(script, true);
         }
 
         static void doOn(string info, Script script)
         {
-            throw new NotImplementedException();
+            advanceIndex(script, script.lastInput.IndexOf(info) != -1);
         }
 
         static void doSet(string info, Script script)
@@ -270,6 +270,7 @@ namespace Prog5
                 {
                     //advance sentence counter
                     currentCoord.sentenceIndex = currentCoord.sentenceIndex + 1;
+                    currentCoord.phraseIndex = 0;
                 }
                 else //that was the last sentence
                 {
