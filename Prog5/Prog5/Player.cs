@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Prog5
 {
-    using Sentence = System.Collections.Generic.List<Phrase>;
+    using Sentence = System.Collections.Generic.List<Phrase>;//used to alias List<Phrase> as Sentence, for convenience sake
 
     class InvalidSentenceException : Exception
     {
@@ -18,6 +18,10 @@ namespace Prog5
     class InvalidRoomException : Exception
     {
         public string room;
+    }
+    class InvalidReturnException : Exception
+    {
+
     }
 
     class Phrase
@@ -52,8 +56,22 @@ namespace Prog5
             Console.WriteLine(AUTHOR_INFO + "\n");
             if (args.Length > 0)
             {
-                Script script = parseFile(args[0]);
-                interpretFile(script);
+                try {
+                    Script script = parseFile(args[0]);
+                    interpretFile(script);
+                } catch(InvalidSentenceException e)
+                {
+                    Console.WriteLine("ERROR PARSING FILE: SENTENCE WAS INVALID. SENTENCE: " + e.sentence);
+                } catch(InvalidCommandException e)
+                {
+                    Console.WriteLine("ERROR INTERPRETING FILE: COMMAND WAS INVALID. COMMAND: " + e.command);
+                } catch(InvalidRoomException e)
+                {
+                    Console.WriteLine("ERROR INTERPRETING FILE: ROOM WAS INVALID. ROOM: " + e.room);
+                } catch(InvalidReturnException e)
+                {
+                    Console.WriteLine("ERROR INTERPRETING FILE: RETURN WAS INVALID.  INTERPRETER TRIED TO RETURN FROM NO VISIT.");
+                }
             }
             else
             {
@@ -61,6 +79,7 @@ namespace Prog5
             }
         }
 
+        //reads in the file and populates the script structure with it
         static Script parseFile(string fname)
         {
             Script script = new Script();
@@ -73,32 +92,32 @@ namespace Prog5
             using (StreamReader reader = new StreamReader(fname))
             {
                 string line;
-                int lineno;
+                int lineno; //used for storing rooms
                 for (line = reader.ReadLine(), lineno = 0; line != null; line = reader.ReadLine(), ++lineno)
                 {
-                    if (line == "")
+                    if (line == "") //ignore empty lines
                     {
                         lineno = lineno - 1;
                         continue;
                     }
-                    if (line[0] == '>')
+                    if (line[0] == '>') //auto-replace the ">" "with println "
                     {
                         line = line.Replace(' ', '+');
-                        line = "println " + line.Substring(1) + "+++++";
+                        line = "println " + line.Substring(1) + "+++++"; //so that you can '>' an empty line
                     }
                     string[] linearray = line.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-                    if(linearray.Length % 2 == 0)
+                    if(linearray.Length % 2 == 0) //make sure there are only valid sentences with valid phrases
                     {
                         //proceed as normal, the sentence is well formed
                         Sentence s = new Sentence();
-                        for(int i = 0; i < linearray.Length; i = i + 2)
+                        for(int i = 0; i < linearray.Length; i = i + 2) //add all the phrases to the sentence
                         {
                             Phrase p = new Phrase();
                             p.command = linearray[i];
                             p.info = linearray[i + 1].Replace('+', ' ');
                             s.Add(p);
                             if(p.command != "room") { ; }
-                            else script.roomToSentenceNumber.Add(p.info, lineno);
+                            else script.roomToSentenceNumber.Add(p.info, lineno); //add rooms to the rooms dictionary
                         }
                         script.sentences.Add(s);
                     }
@@ -118,11 +137,13 @@ namespace Prog5
             return script;
         }
 
+        //interprets the sentences of file
         static void interpretFile(Script script)
         {
             while (!script.done)
             {
-                Coord current = script.currentPositions[script.currentPositions.Count - 1];
+                //get where we are in the file and shove the current phrase through the switch
+                Coord current = script.currentPositions[script.currentPositions.Count - 1]; 
                 Sentence currSentence = script.sentences[current.sentenceIndex];
                 Phrase currPhrase = currSentence[current.phraseIndex];
                 switch(currPhrase.command)
@@ -189,12 +210,13 @@ namespace Prog5
         */
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        
+        //substitutes "$" for the name of the last room entered
         static string modifyInfo(string info, Script script)
         {
             return info.Replace("$", script.lastTarget);
         }
 
+        //helper function for printing things like a teletype machine would
         static void printTeletypey(string info)
         {
             foreach(char c in info)
@@ -204,11 +226,13 @@ namespace Prog5
             }
         }
 
+        //basically, just advances the indexes
         static void doRoom(string info, Script script)
         {
             advanceIndex(script, true);
         }
 
+        //shoves info into the teletypey printer and advances the index
         static void doPrint(string info, Script script)
         {
             //Console.Write(info);
@@ -216,6 +240,7 @@ namespace Prog5
             advanceIndex(script, true);
         }
 
+        //shoves info (along with a newline character) into the teletyper printer and advances the index
         static void doPrintln(string info, Script script)
         {
             //Console.WriteLine(info);
@@ -223,6 +248,7 @@ namespace Prog5
             advanceIndex(script, true);
         }
 
+        //updates last target and then updates the most recent indices
         static void doGoto(string info, Script script)
         {
             if (script.roomToSentenceNumber.ContainsKey(info))
@@ -240,11 +266,13 @@ namespace Prog5
             }
         }
 
+        //sets a flag stating the game is done
         static void doEnd(string info, Script script)
         {
             script.done = true;
         }
 
+        //prints out a prompt, and then stores the input and advances the index
         static void doPrompt(string info, Script script)
         {
             Console.Write(info + " ");
@@ -252,23 +280,28 @@ namespace Prog5
             advanceIndex(script, true);
         }
 
+        //advances the index based on whether info is found in the last input.  
+        // NOTES-FOR-MR.-JUECKSTOCK: Should this be case sensitive?
         static void doOn(string info, Script script)
         {
             advanceIndex(script, script.lastInput.IndexOf(info) != -1);
         }
 
+        //sets a value in the rooms dictionary and advances the index
         static void doSet(string info, Script script)
         {
             script.switches[info] = true;
             advanceIndex(script, true);
         }
 
+        //clears a value in the rooms dictionary and advances the index
         static void doClear(string info, Script script)
         {
             script.switches[info] = false;
             advanceIndex(script, true);
         }
 
+        //advances the index based on a value (or lack thereof) in the rooms dictionary
         static void doIf(string info, Script script)
         {
             if (script.switches.ContainsKey(info))
@@ -280,6 +313,7 @@ namespace Prog5
             }
         }
 
+        //advances the index based on the inverse of a value (or lack thereof) in the rooms dictionary
         static void doUnless(string info, Script script)
         {
             if (script.switches.ContainsKey(info))
@@ -291,6 +325,7 @@ namespace Prog5
             }
         }
 
+        //creates a new index and moves to it
         static void doVisit(string info, Script script)
         {
             if (script.roomToSentenceNumber.ContainsKey(info))
@@ -313,12 +348,22 @@ namespace Prog5
             }
         }
 
+        //removes an index and returns to the one beneath it.  
+        // NOTES-FOR-MR.-JUECKSTOCK: If there are no other indices, something has gone wrong.  Should this be mentioned?
         static void doReturn(string info, Script script)
         {
             script.currentPositions.RemoveAt(script.currentPositions.Count - 1);
-            advanceIndex(script, false);
+            if (script.currentPositions.Count != 0)
+                advanceIndex(script, false);
+            else
+            {
+                InvalidReturnException e = new InvalidReturnException();
+                throw e;
+                //script.done = true;
+            }
         }
 
+        //waits a specified number of seconds, and then advances the index
         static void doWait(string info, Script script)
         {
             int seconds = Convert.ToInt32(info);
@@ -326,6 +371,9 @@ namespace Prog5
             advanceIndex(script, true);
         }
 
+        //generates a random number and compares it to the provided number in info.  
+        //If the random number is greater, then the sentence continues execution.  
+        //Otherwise, the next sentence will execute
         static void doChance(string info, Script script)
         {
             int percent = Convert.ToInt32(info);
@@ -334,6 +382,11 @@ namespace Prog5
             advanceIndex(script, chance >= percent);
         }
 
+        //controls the logic for indexing through sentences and phrases.
+        //if continueSentence is false, it will attempt to skip the rest of the current sentence and move on to the next sentence
+        //if continueSentence is true, it will attempt to resume processing the current sentence
+        // NOTES-FOR-MR.-JUECKSTOCK: Is there a defined case for when there are no more lines to execute?  I just assumed and said that that case
+        // specified end of game.
         static void advanceIndex(Script script, bool continueSentence)
         {
             Coord currentCoord = script.currentPositions[script.currentPositions.Count - 1];
